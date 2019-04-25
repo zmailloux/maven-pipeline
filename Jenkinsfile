@@ -62,7 +62,7 @@ pipeline {
                 "files": [
                   {
                     "pattern": "target/*.jar",
-                    "target": "maven-app/builds/dev/"
+                    "target": "maven-app/builds/${GIT_BRANCH}/"
                   }
                ]
               }"""
