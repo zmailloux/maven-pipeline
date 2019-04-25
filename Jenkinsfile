@@ -21,10 +21,57 @@ pipeline {
             }
             post {
                 success {
-		                echo "Working"
-                    //junit 'target/surefire-reports/**/*.xml'
+                    publishHTML target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'target/munit-reports/coverage',
+                        reportFiles: 'summary.html',
+                        reportName: 'MUnit Report'
+                    ]
+                    publishHTML target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'target/site/jacoco',
+                        reportFiles: 'index.html',
+                        reportName: 'JUnit Report'
+                    ]
                 }
             }
         }
+
+
+        stage ('Acceptance Testing') {
+            steps {
+                sh '''
+                    echo "Here we would do some acceptance tests"
+                '''
+            }
+        }
+
+    }
+
+    post{
+      success {
+          script {
+              sh 'echo Sending JAR to artifactory...'
+              def server = Artifactory.newServer url: 'http://35.222.122.239/artifactory', username: 'admin', password: 'Turtle00'
+              // Artifactory pro
+              def uploadSpec = """{
+                "files": [
+                  {
+                    "pattern": "target/*.zip",
+                    "target": "maven-app/builds/"
+                  }
+               ]
+              }"""
+              def buildInfo = Artifactory.newBuildInfo()
+              server.upload spec: uploadSpec, buildInfo: buildInfo
+              buildInfo.env.collect()
+              server.publishBuildInfo buildInfo
+
+          }
+      }
     }
 }
