@@ -56,7 +56,7 @@ pipeline {
       success {
           script {
               sh 'echo Sending JAR to artifactory...'
-              def server = Artifactory.newServer url: 'http://35.222.122.239/artifactory', username: 'admin', password: 'Turtle00'
+              def server = Artifactory.newServer url: 'http://35.192.53.59/artifactory', username: 'admin', password: 'Turtle00'
               // Artifactory pro
               def uploadSpec = """{
                 "files": [
