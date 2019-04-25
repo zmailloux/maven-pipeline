@@ -15,30 +15,53 @@ pipeline {
         }
 
         stage ('Build') {
-            steps {
-                sh 'mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT'
-                sh 'mvn -B clean verify -DskipMunitTests'
-            }
-            post {
-                success {
-                    publishHTML target: [
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: 'target/munit-reports/coverage',
-                        reportFiles: 'summary.html',
-                        reportName: 'MUnit Report'
-                    ]
-                    publishHTML target: [
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'JUnit Report'
-                    ]
+          stages{
+            stage('Pull Request'){
+                when {
+                    changeRequest()
+                }
+                steps {
+                    sh "echo 'Pull Request build'"
+                    echo "Git branch: ${env.GIT_BRANCH}"
+                    echo "Change target ${env.CHANGE_TARGET}"
+                    steps {
+                        sh 'mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT'
+                        sh 'mvn -B clean verify -DskipMunitTests'
+                    }
                 }
             }
+            stage("Branch"){
+              when {
+                  not {
+                      changeRequest()
+                  }
+              }
+              steps {
+                  sh 'mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT'
+                  sh 'mvn -B clean verify -DskipMunitTests'
+              }
+              post {
+                  success {
+                      publishHTML target: [
+                          allowMissing: true,
+                          alwaysLinkToLastBuild: false,
+                          keepAll: true,
+                          reportDir: 'target/munit-reports/coverage',
+                          reportFiles: 'summary.html',
+                          reportName: 'MUnit Report'
+                      ]
+                      publishHTML target: [
+                          allowMissing: true,
+                          alwaysLinkToLastBuild: false,
+                          keepAll: true,
+                          reportDir: 'target/site/jacoco',
+                          reportFiles: 'index.html',
+                          reportName: 'JUnit Report'
+                      ]
+                  }
+              }
+          }
+        }
         }
 
 
