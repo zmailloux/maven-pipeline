@@ -62,7 +62,7 @@ pipeline {
                 "files": [
                   {
                     "pattern": "target/*.jar",
-                    "target": "maven-app/builds/master"
+                    "target": "maven-app/builds/master/"
                   }
                ]
               }"""
