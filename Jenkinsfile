@@ -16,12 +16,13 @@ pipeline {
 
         stage ('Build') {
             steps {
-                sh 'mvn -Dmaven.test.failure.ignore=true install' 
+                sh 'mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT'
+                sh 'mvn -B clean verify -DskipMunitTests'
             }
             post {
                 success {
-		    echo "Working"
-                    //junit 'target/surefire-reports/**/*.xml' 
+		                echo "Working"
+                    //junit 'target/surefire-reports/**/*.xml'
                 }
             }
         }
